@@ -22,12 +22,12 @@
       radial-gradient(60vw 60vh at 85% 10%, rgba(124,196,255,0.07), transparent 70%),
       radial-gradient(60vw 60vh at 10% 95%, rgba(245,185,113,0.07), transparent 70%),
       var(--bg);}
-  #bg{position:fixed;inset:0;z-index:0}
-  #bg div{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 3s ease}
+  #bg{position:fixed;top:0;right:0;bottom:0;left:0;z-index:0}
+  #bg div{position:absolute;top:0;right:0;bottom:0;left:0;background-size:cover;background-position:center;opacity:0;transition:opacity 3s ease}
   #bg div.on{opacity:1}
-  #shade{position:fixed;inset:0;z-index:1;background:
+  #shade{position:fixed;top:0;right:0;bottom:0;left:0;z-index:1;background:
      linear-gradient(180deg,rgba(8,10,14,.72) 0%,rgba(8,10,14,.45) 40%,rgba(8,10,14,.55) 65%,rgba(8,10,14,.85) 100%)}
-  #wrap{position:absolute;z-index:2;text-shadow:0 2px 12px rgba(0,0,0,.45);inset:4vh 4vw 5vh;display:grid;
+  #wrap{position:absolute;z-index:2;text-shadow:0 2px 12px rgba(0,0,0,.45);top:4vh;right:4vw;bottom:5vh;left:4vw;display:grid;
     grid-template-columns:1.25fr 1fr;grid-template-rows:auto 1fr auto;gap:2vh 3vw;
     transition:transform 4s ease}
   .label{font-size:1.25vw;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
@@ -81,7 +81,7 @@
 
   /* portrait / narrow preview fallback */
   @media (max-aspect-ratio: 1/1){
-    #wrap{grid-template-columns:1fr;grid-template-rows:auto auto auto auto auto;inset:3vh 5vw}
+    #wrap{grid-template-columns:1fr;grid-template-rows:auto auto auto auto auto;top:3vh;right:5vw;bottom:3vh;left:5vw}
     #weather{grid-column:1;grid-row:2;justify-self:start;text-align:left}
     #wnow{justify-content:flex-start}
     #baby{grid-column:1;grid-row:3}#hol{grid-column:1;grid-row:5;width:auto;justify-self:stretch}.hrow .who{font-size:2.8vw}.hrow .what{font-size:4vw}.hrow .when{font-size:3vw}
