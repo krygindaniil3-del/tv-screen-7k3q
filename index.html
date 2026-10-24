@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen</title>
+<style>
+  :root{
+    --bg:#0b0d12;
+    --card:rgba(255,255,255,0.045);
+    --line:rgba(255,255,255,0.08);
+    --text:#eef1f6;
+    --muted:#8a93a6;
+    --accent:#f5b971;
+    --accent2:#7cc4ff;
+    --good:#7fd6a4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);overflow:hidden;
+    font-family:Roboto,"Segoe UI","Helvetica Neue",Arial,sans-serif;cursor:none}
+  body{background:
+      radial-gradient(60vw 60vh at 85% 10%, rgba(124,196,255,0.07), transparent 70%),
+      radial-gradient(60vw 60vh at 10% 95%, rgba(245,185,113,0.07), transparent 70%),
+      var(--bg);}
+  #bg{position:fixed;inset:0;z-index:0}
+  #bg div{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity 3s ease}
+  #bg div.on{opacity:1}
+  #shade{position:fixed;inset:0;z-index:1;background:
+     linear-gradient(180deg,rgba(8,10,14,.72) 0%,rgba(8,10,14,.45) 40%,rgba(8,10,14,.55) 65%,rgba(8,10,14,.85) 100%)}
+  #wrap{position:absolute;z-index:2;text-shadow:0 2px 12px rgba(0,0,0,.45);inset:4vh 4vw 5vh;display:grid;
+    grid-template-columns:1.25fr 1fr;grid-template-rows:auto 1fr auto;gap:2vh 3vw;
+    transition:transform 4s ease}
+  .label{font-size:1.25vw;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  /* clock */
+  #clock{grid-column:1;grid-row:1}
+  #time{font-size:9.5vw;font-weight:200;line-height:.95;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  #time .sec{font-size:3.2vw;color:var(--muted);font-weight:300;margin-left:.6vw;vertical-align:top;position:relative;top:1.4vw}
+  #date{font-size:2.4vw;font-weight:300;margin-top:1.2vh}
+  #msk{font-size:1.7vw;color:var(--muted);margin-top:1vh;font-variant-numeric:tabular-nums}
+  #msk b{color:var(--text);font-weight:400}
+  /* weather */
+  #weather{grid-column:2;grid-row:1;justify-self:end;text-align:right}
+  #wnow{display:flex;align-items:center;justify-content:flex-end;gap:1.2vw;margin-top:.8vh}
+  #wicon{font-size:5.5vw;line-height:1}
+  #wtemp{font-size:7vw;font-weight:200;line-height:1;font-variant-numeric:tabular-nums}
+  #wdesc{font-size:1.9vw;font-weight:300;margin-top:.6vh}
+  #wmore{font-size:1.4vw;color:var(--muted);margin-top:.8vh;line-height:1.5}
+  #wmore b{color:var(--text);font-weight:400}
+  /* countdown */
+  #baby{grid-column:1;grid-row:2;align-self:center;justify-self:center;text-align:center}
+  #hol{grid-column:2;grid-row:2;align-self:center;justify-self:end;width:30vw}
+  .hrow{margin-top:1.6vh}
+  .hrow .who{font-size:1.25vw;color:var(--muted)}
+  .hrow .what{font-size:1.9vw;font-weight:400;margin-top:.3vh}
+  .hrow .when{font-size:1.35vw;color:var(--muted);margin-top:.3vh}
+  .hrow .when b{color:var(--accent);font-weight:500}
+  #babyTitle{font-size:2.2vw;font-weight:300;color:var(--accent)}
+  #babyNum{font-size:10vw;font-weight:200;line-height:1;margin:.5vh 0;font-variant-numeric:tabular-nums;
+    background:linear-gradient(180deg,#ffe2bd,#f5b971);-webkit-background-clip:text;background-clip:text;color:transparent}
+  #babyUnit{font-size:2.6vw;font-weight:300}
+  #babySub{font-size:1.5vw;color:var(--muted);margin-top:1vh}
+  /* bottom */
+  #bottom{grid-column:1 / span 2;grid-row:3;display:grid;grid-template-columns:1.5fr 1fr 0.9fr;gap:1.6vw}
+  #air .aq{display:flex;align-items:baseline;gap:1vw;margin-top:1.2vh}
+  #aqiVal{font-size:3vw;font-weight:300;font-variant-numeric:tabular-nums}
+  #aqiTxt{font-size:1.4vw}
+  #sun{font-size:1.3vw;color:var(--muted);margin-top:1.4vh;line-height:1.6}
+  #sun b{color:var(--text);font-weight:400}
+  .card{background:rgba(12,14,20,.55);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:1.4vw;padding:2vh 1.8vw}
+  #rates .row{display:flex;justify-content:space-between;gap:2vw;margin-top:1.2vh}
+  .rate{flex:1}
+  .rate .pair{font-size:1.25vw;color:var(--muted)}
+  .rate .val{font-size:2.5vw;white-space:nowrap;font-weight:300;font-variant-numeric:tabular-nums;margin-top:.3vh}
+  #ratesUpd{font-size:1vw;color:var(--muted);margin-top:1vh}
+  #year .big{display:flex;align-items:baseline;justify-content:space-between;margin-top:1.2vh}
+  #yearPct{font-size:3vw;font-weight:300;font-variant-numeric:tabular-nums}
+  #yearLeft{font-size:1.3vw;color:var(--muted);white-space:nowrap}
+  .bar{height:1.1vh;border-radius:1vh;background:rgba(255,255,255,0.08);margin-top:1.4vh;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:1vh;background:linear-gradient(90deg,var(--accent2),var(--good))}
+  #yearSub{font-size:1vw;color:var(--muted);margin-top:1vh}
+
+  /* portrait / narrow preview fallback */
+  @media (max-aspect-ratio: 1/1){
+    #wrap{grid-template-columns:1fr;grid-template-rows:auto auto auto auto auto;inset:3vh 5vw}
+    #weather{grid-column:1;grid-row:2;justify-self:start;text-align:left}
+    #wnow{justify-content:flex-start}
+    #baby{grid-column:1;grid-row:3}#hol{grid-column:1;grid-row:5;width:auto;justify-self:stretch}.hrow .who{font-size:2.8vw}.hrow .what{font-size:4vw}.hrow .when{font-size:3vw}
+    #bottom{grid-column:1;grid-row:4;grid-template-columns:1fr}#aqiVal{font-size:6vw}#aqiTxt,#sun{font-size:3vw}
+    #time{font-size:22vw}#date{font-size:5vw}#msk{font-size:3.6vw}
+    .label{font-size:2.8vw}#wicon{font-size:11vw}#wtemp{font-size:14vw}#wdesc{font-size:4vw}#wmore{font-size:3vw}
+    #babyTitle{font-size:4.6vw}#babyNum{font-size:26vw}#babyUnit{font-size:5.4vw}#babySub{font-size:3.2vw}
+    .rate .pair{font-size:2.8vw}.rate .val{font-size:6vw}#ratesUpd,#yearSub{font-size:2.4vw}
+    #yearPct{font-size:6vw}#yearLeft{font-size:3vw}.card{border-radius:3vw;padding:2vh 4vw}
+    #time .sec{font-size:6vw;top:3vw}
+  }
+</style>
+</head>
+<body>
+<div id="bg"><div id="bgA"></div><div id="bgB"></div></div>
+<div id="shade"></div>
+<div id="wrap">
+  <section id="clock">
+    <div class="label">Фошань</div>
+    <div id="time">--:--</div>
+    <div id="date">&nbsp;</div>
+    <div id="msk">Москва <b>--:--</b></div>
+  </section>
+
+  <section id="weather">
+    <div class="label">Погода · Фошань</div>
+    <div id="wnow"><span id="wicon">·</span><span id="wtemp">--°</span></div>
+    <div id="wdesc">загрузка…</div>
+    <div id="wmore">&nbsp;</div>
+  </section>
+
+  <section id="baby">
+    <div id="babyTitle">Отсчёт</div>
+    <div id="babyNum">--</div>
+    <div id="babyUnit">дней</div>
+    <div id="babySub">до 20 ноября</div>
+  </section>
+
+  <section id="hol" class="card">
+    <div class="label">Ближайшие выходные</div>
+    <div class="hrow"><div class="who">🇨🇳 Китай</div><div class="what" id="hCnWhat">—</div><div class="when" id="hCnWhen">&nbsp;</div></div>
+    <div class="hrow"><div class="who">🇷🇺 Россия</div><div class="what" id="hRuWhat">—</div><div class="when" id="hRuWhen">&nbsp;</div></div>
+  </section>
+
+  <section id="bottom">
+    <div class="card" id="rates">
+      <div class="label">Курсы</div>
+      <div class="row">
+        <div class="rate"><div class="pair">¥ юань → ₽</div><div class="val" id="cnyrub">—</div></div>
+        <div class="rate"><div class="pair">$ доллар → ₽</div><div class="val" id="usdrub">—</div></div>
+        <div class="rate"><div class="pair">$ доллар → ¥</div><div class="val" id="usdcny">—</div></div>
+      </div>
+      <div id="ratesUpd">&nbsp;</div>
+    </div>
+    <div class="card" id="year">
+      <div class="label" id="yearLabel">Год</div>
+      <div class="big"><span id="yearPct">--%</span><span id="yearLeft">&nbsp;</span></div>
+      <div class="bar"><i id="yearBar" style="width:0%"></i></div>
+      <div id="yearSub">&nbsp;</div>
+    </div>
+    <div class="card" id="air">
+      <div class="label">Воздух · солнце</div>
+      <div class="aq"><span id="aqiVal">—</span><span id="aqiTxt">&nbsp;</span></div>
+      <div id="sun">&nbsp;</div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ====== НАСТРОЙКИ ====== */
+var CONFIG = {
+  DUE_DATE: "2026-11-20",     // дата отсчёта
+  BIRTH_DATE: null,           // дата начала нового счёта, например "2026-11-18"
+  LAT: 23.02, LON: 113.12,    // Фошань
+  TZ: "Asia/Shanghai",
+  TZ_MSK: "Europe/Moscow",
+  PHOTO_MINUTES: 10,          // как часто меняется фото на фоне
+  PHOTOS: []                  // свои фото: ["https://.../1.jpg", ...]; пусто = случайные красивые фото
+};
+
+/* Нерабочие дни. Россия 2026–2027 — официальный календарь.
+   Китай 2027 — ориентировочно (официальный график выходит в ноябре), est:true */
+var HOLIDAYS = {
+  cn: [
+    {name:"Новый год",            from:"2027-01-01", to:"2027-01-03", est:true},
+    {name:"Праздник весны",       from:"2027-02-05", to:"2027-02-12", est:true},
+    {name:"Цинмин",               from:"2027-04-03", to:"2027-04-05", est:true},
+    {name:"Первомай",             from:"2027-05-01", to:"2027-05-05", est:true},
+    {name:"Праздник лодок-драконов", from:"2027-06-09", to:"2027-06-09", est:true},
+    {name:"Праздник середины осени", from:"2027-09-15", to:"2027-09-15", est:true},
+    {name:"Национальный праздник", from:"2027-10-01", to:"2027-10-07", est:true}
+  ],
+  ru: [
+    {name:"День народного единства", from:"2026-11-04", to:"2026-11-04"},
+    {name:"Новогодние каникулы",  from:"2026-12-31", to:"2027-01-10"},
+    {name:"23 Февраля",           from:"2027-02-21", to:"2027-02-23"},
+    {name:"8 Марта",              from:"2027-03-06", to:"2027-03-08"},
+    {name:"Майские",              from:"2027-05-01", to:"2027-05-03"},
+    {name:"День Победы",          from:"2027-05-08", to:"2027-05-10"},
+    {name:"День России",          from:"2027-06-12", to:"2027-06-14"},
+    {name:"День народного единства", from:"2027-11-04", to:"2027-11-07"},
+    {name:"31 декабря",           from:"2027-12-31", to:"2027-12-31"}
+  ]
+};
+
+var $ = function(id){ return document.getElementById(id); };
+var MONTHS = ["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"];
+var WDAYS = ["воскресенье","понедельник","вторник","среда","четверг","пятница","суббота"];
+
+function store(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function load(k){ try{ var s=localStorage.getItem(k); return s?JSON.parse(s):null; }catch(e){ return null; } }
+
+function partsIn(tz, d){
+  var f = new Intl.DateTimeFormat("en-GB",{timeZone:tz,year:"numeric",month:"2-digit",day:"2-digit",
+    hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false,weekday:"short"});
+  var o={}; f.formatToParts(d).forEach(function(p){ o[p.type]=p.value; });
+  var wd = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6}[o.weekday];
+  return {y:+o.year,m:+o.month,d:+o.day,h:+o.hour%24,mi:+o.minute,s:+o.second,wd:wd};
+}
+function pad(n){ return (n<10?"0":"")+n; }
+function dayNum(y,m,d){ return Math.floor(Date.UTC(y,m-1,d)/86400000); }
+function parseDate(s){ var a=s.split("-"); return dayNum(+a[0],+a[1],+a[2]); }
+function plural(n, one, few, many){
+  var a=Math.abs(n)%100, b=a%10;
+  if(a>10&&a<20) return many; if(b>1&&b<5) return few; if(b===1) return one; return many;
+}
+
+/* ====== ЧАСЫ, ДАТА, ОТСЧЁТ, ГОД ====== */
+function tick(){
+  var now=new Date(), p=partsIn(CONFIG.TZ, now), m=partsIn(CONFIG.TZ_MSK, now);
+  $("time").innerHTML = pad(p.h)+":"+pad(p.mi)+'<span class="sec">'+pad(p.s)+'</span>';
+  $("date").textContent = WDAYS[p.wd]+", "+p.d+" "+MONTHS[p.m-1];
+  $("msk").innerHTML = "Москва <b>"+pad(m.h)+":"+pad(m.mi)+"</b>";
+
+  var today = dayNum(p.y,p.m,p.d);
+
+  // отсчёт
+  var birth = CONFIG.BIRTH_DATE ? parseDate(CONFIG.BIRTH_DATE) : null;
+  var due = parseDate(CONFIG.DUE_DATE);
+  if(birth!==null && today>=birth){
+    var age = today-birth;
+    $("babyTitle").textContent = "Уже";
+    if(age===0){ $("babyNum").textContent="0"; $("babyUnit").textContent="сегодня!"; }
+    else { $("babyNum").textContent=age; $("babyUnit").textContent=plural(age,"день","дня","дней"); }
+    var w=Math.floor(age/7), dd=age%7;
+    $("babySub").textContent = age>=7 ? (w+" "+plural(w,"неделя","недели","недель")+(dd?" и "+dd+" "+plural(dd,"день","дня","дней"):"")) : "с первого дня";
+  } else {
+    var left = due-today;
+    if(left>0){
+      $("babyTitle").textContent = "Отсчёт";
+      $("babyNum").textContent = left;
+      $("babyUnit").textContent = plural(left,"день","дня","дней");
+      var lw=Math.floor(left/7), ld=left%7;
+      $("babySub").textContent = "до 20 ноября" + (left>=7 ? " · "+lw+" "+plural(lw,"неделя","недели","недель")+(ld?" и "+ld+" "+plural(ld,"день","дня","дней"):"") : "");
+    } else if(left===0){
+      $("babyTitle").textContent = "Сегодня";
+      $("babyNum").textContent = "♥";
+      $("babyUnit").textContent = "тот самый день";
+      $("babySub").textContent = "20 ноября";
+    } else {
+      $("babyTitle").textContent = "Прошло";
+      $("babyNum").textContent = -left;
+      $("babyUnit").textContent = plural(-left,"день","дня","дней");
+      $("babySub").textContent = "с 20 ноября";
+    }
+  }
+
+  renderHoliday(HOLIDAYS.cn, today, "hCnWhat", "hCnWhen");
+  renderHoliday(HOLIDAYS.ru, today, "hRuWhat", "hRuWhen");
+
+  // прогресс года
+  var y0=dayNum(p.y,1,1), y1=dayNum(p.y+1,1,1), len=y1-y0;
+  var secs = (today-y0)*86400 + p.h*3600 + p.mi*60 + p.s;
+  var pct = secs/(len*86400)*100;
+  var leftDays = y1-today;
+  $("yearLabel").textContent = p.y+" год";
+  $("yearPct").textContent = pct.toFixed(1).replace(".",",")+"%";
+  $("yearBar").style.width = pct.toFixed(2)+"%";
+  $("yearLeft").textContent = leftDays+" "+plural(leftDays,"день","дня","дней")+" до НГ";
+  var weekNo = Math.floor((today-y0)/7)+1;
+  $("yearSub").textContent = "идёт "+weekNo+"-я неделя из 52";
+}
+
+/* ====== ПРАЗДНИКИ ====== */
+function shortDate(dn){ var d=new Date(dn*86400000); return d.getUTCDate()+" "+MONTHS[d.getUTCMonth()].slice(0,3); }
+function renderHoliday(list, today, whatId, whenId){
+  for(var i=0;i<list.length;i++){
+    var h=list[i], f=parseDate(h.from), t=parseDate(h.to);
+    if(t<today) continue;
+    var len=t-f+1, range=(f===t)?shortDate(f):shortDate(f)+" – "+shortDate(t);
+    $(whatId).textContent=h.name;
+    var txt;
+    if(today>=f){ var rest=t-today; txt = rest===0 ? "<b>сегодня последний день</b> отдыха" : "<b>отдыхаем</b> · ещё "+rest+" "+plural(rest,"день","дня","дней"); }
+    else { var n=f-today; txt = (n===1?"<b>завтра</b>":"через <b>"+n+" "+plural(n,"день","дня","дней")+"</b>")+" · "+range+" · "+len+" "+plural(len,"день","дня","дней"); }
+    if(h.est) txt+=" · ориентировочно";
+    $(whenId).innerHTML=txt; return;
+  }
+  $(whatId).textContent="—"; $(whenId).textContent="календарь закончился — обнови даты";
+}
+
+/* ====== ФОТО НА ФОНЕ ====== */
+var bgFlip=false;
+function nextPhoto(){
+  var url = CONFIG.PHOTOS.length
+    ? CONFIG.PHOTOS[Math.floor(Math.random()*CONFIG.PHOTOS.length)]
+    : "https://picsum.photos/1920/1080?random="+Date.now();
+  var img=new Image();
+  img.onload=function(){
+    var show=bgFlip?$("bgA"):$("bgB"), hide=bgFlip?$("bgB"):$("bgA");
+    show.style.backgroundImage="url('"+img.src+"')";
+    show.classList.add("on"); hide.classList.remove("on"); bgFlip=!bgFlip;
+  };
+  img.src=url;
+}
+
+/* ====== ПОГОДА (Open-Meteo, без ключа) ====== */
+var WMO = {
+  0:["☀️","ясно"],1:["🌤️","в основном ясно"],2:["⛅","переменная облачность"],3:["☁️","пасмурно"],
+  45:["🌫️","туман"],48:["🌫️","изморозь"],
+  51:["🌦️","слабая морось"],53:["🌦️","морось"],55:["🌧️","сильная морось"],
+  56:["🌧️","ледяная морось"],57:["🌧️","ледяная морось"],
+  61:["🌦️","небольшой дождь"],63:["🌧️","дождь"],65:["🌧️","ливень"],
+  66:["🌧️","ледяной дождь"],67:["🌧️","ледяной дождь"],
+  71:["🌨️","небольшой снег"],73:["🌨️","снег"],75:["❄️","сильный снег"],77:["🌨️","снежная крупа"],
+  80:["🌦️","кратковременный дождь"],81:["🌧️","ливни"],82:["⛈️","сильные ливни"],
+  85:["🌨️","снегопад"],86:["❄️","сильный снегопад"],
+  95:["⛈️","гроза"],96:["⛈️","гроза с градом"],99:["⛈️","сильная гроза"]
+};
+function renderWeather(w){
+  if(!w) return;
+  var c=w.current, d=w.daily, code=WMO[c.weather_code]||["·",""];
+  $("wicon").textContent = code[0];
+  $("wtemp").textContent = Math.round(c.temperature_2m)+"°";
+  $("wdesc").textContent = code[1];
+  var t0 = "Сегодня <b>"+Math.round(d.temperature_2m_min[0])+"…"+Math.round(d.temperature_2m_max[0])+"°</b>"+
+           (d.precipitation_probability_max[0]!=null?" · дождь "+d.precipitation_probability_max[0]+"%":"");
+  var c1 = WMO[d.weather_code[1]]||["",""];
+  var t1 = "Завтра <b>"+Math.round(d.temperature_2m_min[1])+"…"+Math.round(d.temperature_2m_max[1])+"°</b> "+c1[0]+
+           (d.precipitation_probability_max[1]!=null?" · дождь "+d.precipitation_probability_max[1]+"%":"");
+  if(d.sunrise && d.sunset){
+    var sr=d.sunrise[0].slice(11,16), ss=d.sunset[0].slice(11,16);
+    var a=sr.split(":"), b=ss.split(":"), mins=(+b[0]*60+ +b[1])-(+a[0]*60+ +a[1]);
+    $("sun").innerHTML = "Восход <b>"+sr+"</b> · закат <b>"+ss+"</b><br>Световой день "+Math.floor(mins/60)+" ч "+pad(mins%60)+" мин";
+  }
+  $("wmore").innerHTML = "Ощущается как <b>"+Math.round(c.apparent_temperature)+"°</b> · влажность "+c.relative_humidity_2m+"%<br>"+t0+"<br>"+t1;
+}
+function getWeather(){
+  var url="https://api.open-meteo.com/v1/forecast?latitude="+CONFIG.LAT+"&longitude="+CONFIG.LON+
+    "&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code"+
+    "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset"+
+    "&timezone="+encodeURIComponent(CONFIG.TZ)+"&forecast_days=2";
+  fetch(url).then(function(r){ return r.json(); }).then(function(w){
+    if(w && w.current){ store("wx",w); renderWeather(w); }
+  }).catch(function(){ var c=load("wx"); if(c) renderWeather(c); else $("wdesc").textContent="нет связи"; });
+}
+
+/* ====== ВОЗДУХ (US AQI) ====== */
+function aqiInfo(v){
+  if(v<=50) return ["хороший","#7fd6a4"];
+  if(v<=100) return ["нормальный","#e6d36a"];
+  if(v<=150) return ["вредный для чувствительных","#f5b971"];
+  if(v<=200) return ["вредный","#ef8a6f"];
+  if(v<=300) return ["очень вредный","#c77dff"];
+  return ["опасный","#ff5c7a"];
+}
+function renderAir(a){
+  if(!a || !a.current) return;
+  var v=Math.round(a.current.us_aqi), i=aqiInfo(v);
+  $("aqiVal").textContent=v; $("aqiVal").style.color=i[1];
+  $("aqiTxt").textContent=i[0];
+}
+function getAir(){
+  fetch("https://air-quality-api.open-meteo.com/v1/air-quality?latitude="+CONFIG.LAT+"&longitude="+CONFIG.LON+
+    "&current=us_aqi,pm2_5&timezone="+encodeURIComponent(CONFIG.TZ))
+    .then(function(r){ return r.json(); }).then(function(a){ if(a && a.current){ store("air",a); renderAir(a); } })
+    .catch(function(){ renderAir(load("air")); });
+}
+
+/* ====== КУРСЫ ====== */
+function fmt(n,dig){ return n.toFixed(dig).replace(".",","); }
+function renderRates(r){
+  if(!r) return;
+  $("cnyrub").textContent = fmt(r.RUB/r.CNY,2)+" ₽";
+  $("usdrub").textContent = fmt(r.RUB,2)+" ₽";
+  $("usdcny").textContent = fmt(r.CNY,3)+" ¥";
+  var t=new Date(r.t), p=partsIn(CONFIG.TZ,t);
+  $("ratesUpd").textContent = "обновлено "+p.d+" "+MONTHS[p.m-1]+", "+pad(p.h)+":"+pad(p.mi);
+}
+function getRates(){
+  fetch("https://open.er-api.com/v6/latest/USD").then(function(r){ return r.json(); }).then(function(j){
+    if(!j || !j.rates || !j.rates.RUB) throw 0;
+    var r={RUB:j.rates.RUB,CNY:j.rates.CNY,t:Date.now()}; store("fx",r); renderRates(r);
+  }).catch(function(){
+    fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json")
+      .then(function(r){ return r.json(); }).then(function(j){
+        var r={RUB:j.usd.rub,CNY:j.usd.cny,t:Date.now()}; store("fx",r); renderRates(r);
+      }).catch(function(){ var c=load("fx"); if(c) renderRates(c); else $("ratesUpd").textContent="нет связи"; });
+  });
+}
+
+/* ====== СДВИГ ОТ ВЫГОРАНИЯ ====== */
+function drift(){
+  var x=(Math.random()*2-1)*0.8, y=(Math.random()*2-1)*0.8;
+  $("wrap").style.transform="translate("+x+"vw,"+y+"vh)";
+}
+
+renderWeather(load("wx")); renderRates(load("fx")); renderAir(load("air"));
+getAir(); setInterval(getAir, 60*60*1000);
+tick(); setInterval(tick,1000);
+getWeather(); setInterval(getWeather, 30*60*1000);
+getRates(); setInterval(getRates, 60*60*1000);
+setInterval(drift, 60*1000);
+nextPhoto(); setInterval(nextPhoto, CONFIG.PHOTO_MINUTES*60*1000);
+</script>
+</body>
+</html>
